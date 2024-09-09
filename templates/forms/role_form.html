@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load sass_tags %}
+{% load custom_filters %}
+
+
+{% block css %}
+<!-- Plugins css start-->
+<!-- Plugins css Ends-->
+{% endblock %}
+
+{% block content %}
+
+<div class="page-body">
+      <div class="container-fluid">
+         
+
+                  <div class="card">
+                  <div class="card-header">
+                  <h5>User Form</h5>
+                  </div>
+                  <form method="post" class="form theme-form"> 
+                  {% csrf_token %}
+                  <div class="card-body">
+                        <div class="row">
+                        <div class="col">
+                        <div class="mb-3">
+                              <label class="form-label" for="{{ form.name.id_for_label }}">Name</label>
+                              {{ form.name|add_class:"form-control input-air-primary" }}
+                        </div>
+                        </div>
+                        </div>
+
+                  
+                        
+                  </div>
+                  <div class="card-footer text-end">
+                        <button class="btn btn-primary" type="submit">Submit</button>
+                        <input class="btn btn-light" type="reset" value="Cancel">
+                  </div>
+                  </form>
+                  </div>
+
+       
+
+      </div>
+</div>
+
+{% endblock %}
+
+{% block scriptcontent %}
+<!-- Plugins JS start-->
+<script src="{% static 'assets/js/tooltip-init.js'%}"></script>
+<!-- Plugins JS Ends-->
+{% endblock %}

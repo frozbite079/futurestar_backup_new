@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load sass_tags %}
+
+{% block css %}
+<!-- Plugins css start-->
+
+<!-- Plugins css Ends-->
+{% endblock %}
+
+{% block content %}
+
+{% include "components/loader.html" %}
+
+<div class="page-body">
+    <div class="container-fluid">
+        {% include "layouts/breadcrumb.html" %}
+
+        <div class="card">
+            <div class="card-header">
+                <h5>System Settings</h5>
+            </div>
+            <form class="form theme-form" method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label" for="website_name_english">Website Name (English)</label>
+                                <input class="form-control btn-pill" id="website_name_english" name="website_name_english" type="text" value="{{ system_settings.website_name_english }}" placeholder="Website Name (English)">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label" for="website_name_arabic">Website Name (Arabic)</label>
+                                <input class="form-control btn-pill" id="website_name_arabic" name="website_name_arabic" type="text" value="{{ system_settings.website_name_arabic }}" placeholder="Website Name (Arabic)">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label" for="phone">Phone Number</label>
+                                <input class="form-control btn-pill" id="phone" name="phone" type="text" value="{{ system_settings.phone }}" placeholder="Phone Number">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label" for="email">Email Address</label>
+                                <input class="form-control btn-pill" id="email" name="email" type="email" value="{{ system_settings.email }}" placeholder="Email Address">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label" for="address">Address</label>
+                                <textarea class="form-control btn-pill" id="address" name="address" rows="3" placeholder="Address">{{ system_settings.address }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Favicon -->
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label" for="fav_icon">Fav Icon (64x64 px)</label>
+                                <input class="form-control btn-pill" id="fav_icon" name="fav_icon" type="file">
+                                {% if system_settings.fav_icon %}
+                                    <img src="{{ MEDIA_URL }}{{ system_settings.fav_icon }}" alt="Fav Icon" style="width: 64px; height: 64px;">
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Logo -->
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label" for="footer_logo">Footer Logo (293x66 px)</label>
+                                <input class="form-control btn-pill" id="footer_logo" name="footer_logo" type="file">
+                                {% if system_settings.footer_logo %}
+                                    <img src="{{ MEDIA_URL }}{{ system_settings.footer_logo }}" alt="Footer Logo" style="width: 293px; height: 66px;">
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Header Logo -->
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label" for="header_logo">Header Logo (249x56 px)</label>
+                                <input class="form-control btn-pill" id="header_logo" name="header_logo" type="file">
+                                {% if system_settings.header_logo %}
+                                    <img src="{{ MEDIA_URL }}{{ system_settings.header_logo }}" alt="Header Logo" style="width: 249px; height: 56px;">
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label" for="instagram">Instagram</label>
+                                <input class="form-control btn-pill" id="instagram" name="instagram" type="text" value="{{ system_settings.instagram }}" placeholder="Instagram URL">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label" for="facebook">Facebook</label>
+                                <input class="form-control btn-pill" id="facebook" name="facebook" type="text" value="{{ system_settings.facebook }}" placeholder="Facebook URL">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label" for="snapchat">Snapchat</label>
+                                <input class="form-control btn-pill" id="snapchat" name="snapchat" type="text" value="{{ system_settings.snapchat }}" placeholder="Snapchat URL">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label" for="linkedin">LinkedIn</label>
+                                <input class="form-control btn-pill" id="linkedin" name="linkedin" type="text" value="{{ system_settings.linkedin }}" placeholder="LinkedIn URL">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label" for="youtube">YouTube</label>
+                                <input class="form-control btn-pill" id="youtube" name="youtube" type="text" value="{{ system_settings.youtube }}" placeholder="YouTube URL">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end">
+                    <button class="btn btn-primary" type="submit">Save</button>
+                    <input class="btn btn-light" type="reset" value="Cancel">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scriptcontent %}
+{% include 'layouts/messages.html' %}
+
+
+{% endblock %}
+{% block script %}
+<script>new WOW().init();</script>
+{% endblock %}

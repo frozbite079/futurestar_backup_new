@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load sass_tags %}
+{% load custom_filters %}
+
+
+{% block css %}
+<!-- Plugins css start-->
+<!-- Plugins css Ends-->
+{% endblock %}
+
+{% block content %}
+
+<div class="page-body">
+      <div class="container-fluid">
+         
+        
+            
+            <div class="card">
+              <div class="card-header">
+                <h5>User Form</h5>
+              </div>
+              <form method="post" class="form theme-form"> 
+                {% csrf_token %}
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <div class="mb-3">
+                        <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+                        {{ form.username|add_class:"form-control input-air-primary" }}
+                      </div>
+                    </div>
+                  </div>
+            
+                  <div class="row">
+                    <div class="col">
+                      <div class="mb-3">
+                        <label class="form-label" for="{{ form.email.id_for_label }}">Email address</label>
+                        {{ form.email|add_class:"form-control input-air-primary" }}
+                      </div>
+                    </div>
+                  </div>
+            
+                  <div class="row">
+                    <div class="col">
+                      <div class="mb-3">
+                        <label class="form-label" for="{{ form.first_name.id_for_label }}">First Name</label>
+                        {{ form.first_name|add_class:"form-control input-air-primary" }}
+                      </div>
+                    </div>
+                  </div>
+            
+                  <div class="row">
+                    <div class="col">
+                      <div class="mb-3">
+                        <label class="form-label" for="{{ form.last_name.id_for_label }}">Last Name</label>
+                        {{ form.last_name|add_class:"form-control input-air-primary" }}
+                      </div>
+                    </div>
+                  </div>
+            
+                  <div class="row">
+                    <div class="col">
+                      <div class="mb-3">
+                        <label class="form-label" for="{{ form.phone.id_for_label }}">Phone</label>
+                        {{ form.phone|add_class:"form-control input-air-primary" }}
+                      </div>
+                    </div>
+                  </div>
+            
+                  <div class="row">
+                    <div class="col">
+                      <div class="mb-3">
+                        <label class="form-label" for="{{ form.role.id_for_label }}">Role</label>
+                        {{ form.role|add_class:"form-select input-air-primary digits" }}
+                      </div>
+                    </div>
+                  </div>
+            
+                  <div class="row">
+                    <div class="col">
+                      <div class="form-check mb-3">
+                        {{ form.is_active|add_class:"form-check-input" }} 
+                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Is Active</label>
+                      </div>
+                    </div>
+                  </div>
+            
+                  <div class="row">
+                    <div class="col">
+                      <div class="form-check mb-3">
+                        {{ form.is_staff|add_class:"form-check-input" }}
+                        <label class="form-check-label" for="{{ form.is_staff.id_for_label }}">Is Staff</label>
+                      </div>
+                    </div>
+                  </div>
+                  
+                </div>
+                <div class="card-footer text-end">
+                  <button class="btn btn-primary" type="submit">Submit</button>
+                  <input class="btn btn-light" type="reset" value="Cancel">
+                </div>
+              </form>
+            </div>
+            
+       
+
+      </div>
+</div>
+
+{% endblock %}
+
+{% block scriptcontent %}
+<!-- Plugins JS start-->
+<script src="{% static 'assets/js/tooltip-init.js'%}"></script>
+<!-- Plugins JS Ends-->
+{% endblock %}
