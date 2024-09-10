@@ -49,7 +49,7 @@ ROOT_URLCONF = 'FutureStar_Project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -133,3 +133,31 @@ LOGIN_URL = '/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTHENTICATION_BACKENDS = [
+    'FutureStar_App.backends.EmailBackend', 
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 3600
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'futurestar.redspark.redspark.a2hosted.com'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'futurestar@futurestar.redspark.redspark.a2hosted.com'
+EMAIL_HOST_PASSWORD = 'redspark@1'
+DEFAULT_FROM_EMAIL = 'futurestar@futurestar.redspark.redspark.a2hosted.com' 
+
+
+'''
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_HOST_USER = '7901fe60fdef79'
+EMAIL_HOST_PASSWORD = '39e9ed63af1c3a'
+EMAIL_PORT = '2525' 
+'''
+
+
+
