@@ -2,7 +2,6 @@ import os
 from django.shortcuts import render, redirect, get_object_or_404
 from django import views
 from .forms import *
-
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -24,9 +23,7 @@ from django.core.mail import send_mail
 from datetime import timedelta
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+
 
 def LoginFormView(request):
     # If the user is already logged in, redirect to the dashboard
@@ -68,39 +65,9 @@ class ForgotPasswordView(View):
         return render(request, self.template_name)
 
     def post(self, request):
-        email = request.POST.get('email') 
-        
+        email = request.POST.get('email')
         user = self.User.objects.filter(email=email).first()
-        
-        '''try:
-            def send_email():
-                smtp_server = 'futurestar.redspark.redspark.a2hosted.com'
-                smtp_port = 465
-                username = 'futurestar@futurestar.redspark.redspark.a2hosted.com'
-                password = 'redspark@1'
 
-                msg = MIMEMultipart()
-                msg['From'] = username
-                msg['To'] = 'ombadhe079@gmail.com'
-                msg['Subject'] = 'Test Subject'
-
-                body = 'hello om.'
-                msg.attach(MIMEText(body, 'plain'))
-
-                with smtplib.SMTP(smtp_server, smtp_port) as server:
-                    error =   server.set_debuglevel(1)  
-                    with open("boto_log.txt","w") as f:
-                        f.write(str(e))  
-                    server.starttls()
-                    server.login(username, password)
-                    text = msg.as_string()
-                    server.sendmail(username, 'recipient@example.com', text)
-
-            send_email()
-        except Exception as e:
-            with open("boto3_log.txt","w") as f:
-                f.write(str(e))   
-        '''        
         if user:
             user.remember_token = get_random_string(40)
             user.token_created_at = timezone.now()
@@ -124,10 +91,7 @@ class ForgotPasswordView(View):
                 msg.send()
                 messages.success(request, 'Please check your email for the reset link.')
             except Exception as e:
-                
-                
-                #messages.error(request, 'There was an error sending the email. Please try again later.')
-                messages.error(request, str(e))
+                messages.error(request, 'There was an error sending the email. Please try again later.')
 
             return redirect("login")
         else:
@@ -240,7 +204,6 @@ class UserUpdateProfileView(View):
             password_change_form = CustomPasswordChangeForm(
                 user=request.user, data=request.POST
             )
-            
             if password_change_form.is_valid():
                 user = password_change_form.save()
                 logout(request)  # Log out the user after password change
@@ -487,7 +450,7 @@ class UserListView(LoginRequiredMixin, View):
             {
                 "users": users,
                 "roles": roles,
-                "breadcrumb": {"parent": "Admin", "child": "User List"},
+                "breadcrumb": {"parent": "User", "child": "User List"},
             },
         )
 
@@ -537,17 +500,20 @@ class UserDeleteView(LoginRequiredMixin, View):
         user = get_object_or_404(User, pk=pk)
         user.delete()
         messages.success(request, f"User {user.username} was successfully deleted.")
-        return redirect(
-            "user_list"
-        )  # Redirect to the user list after successful deletion
+        return redirect("user_list")  # Redirect to the user list after successful deletion
 
     def post(self, request, pk):
         user = get_object_or_404(User, pk=pk)
-        user.delete()
-        messages.success(request, f"User {user.username} was successfully deleted.")
-        return redirect(
-            "user_list"
-        )  # Redirect to the user list after successful deletion
+        print(user)
+        print(user.role_id)
+        if user.role_id == 1 or user.role is None:
+            messages.error(request,"SuperUser Can not deleted.")
+            print(messages.success(request,"SuperUser Can not deleted."))
+            return redirect("user_list")
+        else:
+            user.delete()
+            messages.success(request, f"User {user.username} was successfully deleted.")
+            return redirect("user_list")  # Redirect to the user list after successful deletion
 
 
 # Category CRUD Views
@@ -624,7 +590,7 @@ class CategoryListView(LoginRequiredMixin, View):
             self.template_name,
             {
                 "categories": categories,
-                "breadcrumb": {"parent": "Admin", "child": "Category"},
+                "breadcrumb": {"parent": "User", "child": "Category"},
             },
         )
 
@@ -694,7 +660,7 @@ class RoleListView(LoginRequiredMixin, View):
         return render(
             request,
             self.template_name,
-            {"roles": roles, "breadcrumb": {"parent": "Admin", "child": "Role"}},
+            {"roles": roles, "breadcrumb": {"parent": "User", "child": "Role"}},
         )
 
 
