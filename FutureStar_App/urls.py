@@ -35,8 +35,10 @@ urlpatterns = [
 
 
     #User List URL
-    path('User/', UserListView.as_view(), name='user_list'),
-    path('users/<int:user_id>/edit/', UserEditView.as_view(), name='user_edit'),
+    path('User/', UserListView.as_view(), name='user_list'),    path('users/<int:user_id>/edit/', UserEditView.as_view(), name='user_edit'),
+    path('userdetail/<id>',UserDetailPage,name='user_detail'),
+    path('userEdit/<id>',UserEditPage,name = "user_edit"),
+    path('userPlayerEdit',save_player_detail,name= "Usernewdataedit"),
     path('users/<int:user_id>/update/', UserEditView.as_view(), name='user_update'),
     path('users/<int:pk>/delete/', UserDeleteView.as_view(), name='user_delete'),
     path('user/<int:pk>/toggle-status/', ToggleUserStatusView.as_view(), name='user_toggle_status'),
@@ -61,18 +63,11 @@ urlpatterns = [
     path('categories/delete/<int:pk>/', CategoryDeleteView.as_view(), name='category_delete'),
 
 
-    #Gender Role URL
-    path('gender/', GenderListView.as_view(), name='gender_list'),
-    path('gender/create/', GenderCreateView.as_view(), name='gender_create'),
-    path('gender/update/<int:pk>/', GenderUpdateView.as_view(), name='gender_update'),
-    path('gender/delete/<int:pk>/', GenderDeleteView.as_view(), name='gender_delete'),
-
-
-    # GameType URL
-    path('gametype/', GameTypeListView.as_view(), name='gametype_list'),
-    path('gametype/create/', GameTypeCreateView.as_view(), name='gametype_create'),
-    path('gametype/update/<int:pk>/', GameTypeUpdateView.as_view(), name='gametype_update'),
-    path('gametype/delete/<int:pk>/', GameTypeDeleteView.as_view(), name='gametype_delete'),
+    # #Gender Role URL
+    # path('gender/', GenderListView.as_view(), name='gender_list'),
+    # path('gender/create/', GenderCreateView.as_view(), name='gender_create'),
+    # path('gender/update/<int:pk>/', GenderUpdateView.as_view(), name='gender_update'),
+    # path('gender/delete/<int:pk>/', GenderDeleteView.as_view(), name='gender_delete'),
 
     # FieldCapacity URL
     path('fieldcapacity/', FieldCapacityListView.as_view(), name='fieldcapacity_list'),

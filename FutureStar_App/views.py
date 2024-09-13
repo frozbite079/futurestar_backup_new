@@ -160,13 +160,7 @@ def logout_view(request):
     logout(request)
     return redirect("login")
 
-
-class Table(LoginRequiredMixin, views.View):
-    def get(self, request, *args, **kwargs):
-        return render(request, "table/datatable-basic-init.html")
-
-
-# User Profile View
+##################################################### User Profile View ###############################################################
 class UserProfileView(LoginRequiredMixin, View):
     def get(self, request):
         user = request.user
@@ -201,26 +195,19 @@ class UserUpdateProfileView(View):
     def post(self, request, *args, **kwargs):
         if "change_password" in request.POST:
             # Handle password change
-            password_change_form = CustomPasswordChangeForm(
-                user=request.user, data=request.POST
-            )
+            password_change_form = CustomPasswordChangeForm(user=request.user, data=request.POST)
             if password_change_form.is_valid():
                 user = password_change_form.save()
                 logout(request)  # Log out the user after password change
-                messages.success(
-                    request,
-                    "Your password has been changed successfully. Please log in again.",
-                )
+                messages.success(request, "Your password has been changed successfully. Please log in again.")
                 return redirect("login")
             else:
-                for field in password_change_form:
-                    for error in field.errors:
-                        messages.error(request, error)
                 form = UserUpdateProfileForm(instance=request.user)
+                # Render the same template with the form errors
                 return render(
                     request,
-                    "Admin/User/edit_profile.html",
-                    {"form": form, "password_change_form": password_change_form},
+                    "Admin/Dashboard.html",
+                    {"form": form, "password_change_form": password_change_form, "show_change_password_modal": True},
                 )
         else:
             # Handle profile update
@@ -269,7 +256,7 @@ class UserUpdateProfileView(View):
                 )
 
 
-# SytemSettings view
+################################## SytemSettings view #######################################################
 class System_Settings(LoginRequiredMixin, View):
     login_url = "/"
     redirect_field_name = "redirect_to"
@@ -382,7 +369,7 @@ class System_Settings(LoginRequiredMixin, View):
             else:
                 system_settings.save()
                 success = True
-                messages.success(request, "System settings were successfully updated.")
+                messages.success(request, "System settings Updated Successfully.")
         
         except Exception as e:
             messages.error(request, f"An error occurred: {e}")
@@ -442,15 +429,16 @@ class UserListView(LoginRequiredMixin, View):
 
     def get(self, request):
         User = get_user_model()  # Get the custom user model
-        users = User.objects.all()
-        roles = Role.objects.all()
+        users = User.objects.exclude(role_id__isnull=True).exclude(role_id=1)
+        # Filter roles where id is not equal to 1
+        roles = Role.objects.exclude(id=1)
         return render(
             request,
             self.template_name,
             {
                 "users": users,
                 "roles": roles,
-                "breadcrumb": {"parent": "User", "child": "User List"},
+                "breadcrumb": {"child": "Player List"},
             },
         )
 
@@ -489,7 +477,7 @@ class UserEditView(LoginRequiredMixin, View):
         if form.is_valid():
             form.save()
             # Use Django messages to pass success message
-            messages.success(request, f"User {user.username} was successfully updated.")
+            messages.success(request, f"User {user.username} Updated Successfully.")
             return JsonResponse({"success": True})
         else:
             # Return form errors if the form is invalid
@@ -499,7 +487,7 @@ class UserDeleteView(LoginRequiredMixin, View):
     def get(self, request, pk):
         user = get_object_or_404(User, pk=pk)
         user.delete()
-        messages.success(request, f"User {user.username} was successfully deleted.")
+        messages.success(request, f"User {user.username} Deleted Successfully.")
         return redirect("user_list")  # Redirect to the user list after successful deletion
 
     def post(self, request, pk):
@@ -512,7 +500,7 @@ class UserDeleteView(LoginRequiredMixin, View):
             return redirect("user_list")
         else:
             user.delete()
-            messages.success(request, f"User {user.username} was successfully deleted.")
+            messages.success(request, f"User {user.username} Deleted Successfully.")
             return redirect("user_list")  # Redirect to the user list after successful deletion
 
 
@@ -528,12 +516,12 @@ class CategoryCreateView(LoginRequiredMixin, View):
             # Check for existing category with the same name
             name = form.cleaned_data.get("name")
             if Category.objects.filter(name=name).exists():
-                messages.error(request, "A category with this name already exists.")
+                messages.error(request, "Category Type with this name already exists.")
                 return redirect(
                     "category_list"
                 )  # Redirect back to category_list with an error message
             form.save()
-            messages.success(request, "Category was successfully created.")
+            messages.success(request, "Category Type Create Successfully.")
             return redirect("category_list")
         else:
             messages.error(
@@ -556,7 +544,7 @@ class CategoryUpdateView(LoginRequiredMixin, View):
         form = CategoryForm(request.POST, instance=category)
         if form.is_valid():
             form.save()
-            messages.success(request, "Category was successfully updated.")
+            messages.success(request, "Category Type Updated Successfully.")
             return redirect("category_list")
         else:
             messages.error(
@@ -570,13 +558,13 @@ class CategoryDeleteView(LoginRequiredMixin, View):
     def get(self, request, pk):
         category = get_object_or_404(Category, pk=pk)
         category.delete()
-        messages.success(request, "Category was successfully deleted.")
+        messages.success(request, "Category Type Deleted Successfully.")
         return redirect("category_list")
 
     def post(self, request, pk):
         category = get_object_or_404(Category, pk=pk)
         category.delete()
-        messages.success(request, "Category was successfully deleted.")
+        messages.success(request, "Category Type Deleted Successfully.")
         return redirect("category_list")
 
 
@@ -590,7 +578,7 @@ class CategoryListView(LoginRequiredMixin, View):
             self.template_name,
             {
                 "categories": categories,
-                "breadcrumb": {"parent": "User", "child": "Category"},
+                "breadcrumb": {"parent": "User", "child": "Category Type"},
             },
         )
 
@@ -607,7 +595,7 @@ class RoleCreateView(LoginRequiredMixin, View):
         form = RoleForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, "Role created successfully.")
+            messages.success(request, "Role Created successfully.")
             return redirect("role_list")
         messages.error(
             request,
@@ -629,7 +617,7 @@ class RoleUpdateView(LoginRequiredMixin, View):
         form = RoleForm(request.POST, instance=role)
         if form.is_valid():
             form.save()
-            messages.success(request, "Role was successfully updated.")
+            messages.success(request, "Role Updated Successfully.")
             return redirect("role_list")
         messages.error(
             request,
@@ -642,13 +630,13 @@ class RoleDeleteView(LoginRequiredMixin, View):
     def get(self, request, pk):
         role = get_object_or_404(Role, pk=pk)
         role.delete()
-        messages.success(request, "Role was successfully deleted.")
+        messages.success(request, "Role Deleted Successfully.")
         return redirect("role_list")
 
     def post(self, request, pk):
         role = get_object_or_404(Role, pk=pk)
         role.delete()
-        messages.success(request, "Role was successfully deleted.")
+        messages.success(request, "Role Deleted Successfully.")
         return redirect("role_list")
 
 
@@ -664,149 +652,76 @@ class RoleListView(LoginRequiredMixin, View):
         )
 
 
-# Gender CRUD Views
-class GenderCreateView(LoginRequiredMixin, View):
-    template_name = "forms/gender_form.html"
+# # Gender CRUD Views
+# class GenderCreateView(LoginRequiredMixin, View):
+#     template_name = "forms/gender_form.html"
 
-    def get(self, request):
-        form = GenderForm()
-        return render(request, self.template_name, {"form": form})
+#     def get(self, request):
+#         form = GenderForm()
+#         return render(request, self.template_name, {"form": form})
 
-    def post(self, request):
-        form = GenderForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Gender created successfully.")
-            return redirect("gender_list")
-        messages.error(
-            request,
-            "There was an error creating the gender. Please ensure all fields are filled out correctly.",
-        )
-        return render(request, self.template_name, {"form": form})
-
-
-class GenderUpdateView(LoginRequiredMixin, View):
-    template_name = "forms/gender_form.html"
-
-    def get(self, request, pk):
-        gender = get_object_or_404(UserGender, pk=pk)
-        form = GenderForm(instance=gender)
-        return render(request, self.template_name, {"form": form})
-
-    def post(self, request, pk):
-        gender = get_object_or_404(UserGender, pk=pk)
-        form = GenderForm(request.POST, instance=gender)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Gender was successfully updated.")
-            return redirect("gender_list")
-        messages.error(
-            request,
-            "There was an error updating the gender. Please ensure all fields are filled out correctly.",
-        )
-        return render(request, self.template_name, {"form": form})
+#     def post(self, request):
+#         form = GenderForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, "Gender created successfully.")
+#             return redirect("gender_list")
+#         messages.error(
+#             request,
+#             "There was an error creating the gender. Please ensure all fields are filled out correctly.",
+#         )
+#         return render(request, self.template_name, {"form": form})
 
 
-class GenderDeleteView(LoginRequiredMixin, View):
-    def get(self, request, pk):
-        gender = get_object_or_404(UserGender, pk=pk)
-        gender.delete()
-        messages.success(request, "Gender was successfully deleted.")
-        return redirect("gender_list")
+# class GenderUpdateView(LoginRequiredMixin, View):
+#     template_name = "forms/gender_form.html"
 
-    def post(self, request, pk):
-        gender = get_object_or_404(UserGender, pk=pk)
-        gender.delete()
-        messages.success(request, "Gender was successfully deleted.")
-        return redirect("gender_list")
+#     def get(self, request, pk):
+#         gender = get_object_or_404(UserGender, pk=pk)
+#         form = GenderForm(instance=gender)
+#         return render(request, self.template_name, {"form": form})
 
-
-class GenderListView(LoginRequiredMixin, View):
-    template_name = "Admin/General_Settings/Gender.html"
-
-    def get(self, request):
-        genders = UserGender.objects.all()
-        return render(
-            request,
-            self.template_name,
-            {
-                "genders": genders,
-                "breadcrumb": {"parent": "General Settings", "child": "Gender"},
-            },
-        )
+#     def post(self, request, pk):
+#         gender = get_object_or_404(UserGender, pk=pk)
+#         form = GenderForm(request.POST, instance=gender)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, "Gender was successfully updated.")
+#             return redirect("gender_list")
+#         messages.error(
+#             request,
+#             "There was an error updating the gender. Please ensure all fields are filled out correctly.",
+#         )
+#         return render(request, self.template_name, {"form": form})
 
 
-# GameType CRUD Views
-class GameTypeCreateView(LoginRequiredMixin, View):
-    template_name = "forms/gametype_form.html"
+# class GenderDeleteView(LoginRequiredMixin, View):
+#     def get(self, request, pk):
+#         gender = get_object_or_404(UserGender, pk=pk)
+#         gender.delete()
+#         messages.success(request, "Gender was successfully deleted.")
+#         return redirect("gender_list")
 
-    def get(self, request):
-        form = GameTypeForm()
-        return render(request, self.template_name, {"form": form})
-
-    def post(self, request):
-        form = GameTypeForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Game type created successfully.")
-            return redirect("gametype_list")
-        messages.error(
-            request,
-            "There was an error creating the game type. Please ensure all fields are filled out correctly.",
-        )
-        return render(request, self.template_name, {"form": form})
+#     def post(self, request, pk):
+#         gender = get_object_or_404(UserGender, pk=pk)
+#         gender.delete()
+#         messages.success(request, "Gender was successfully deleted.")
+#         return redirect("gender_list")
 
 
-class GameTypeUpdateView(LoginRequiredMixin, View):
-    template_name = "forms/gametype_form.html"
+# class GenderListView(LoginRequiredMixin, View):
+#     template_name = "Admin/General_Settings/Gender.html"
 
-    def get(self, request, pk):
-        gametype = get_object_or_404(GameType, pk=pk)
-        form = GameTypeForm(instance=gametype)
-        return render(request, self.template_name, {"form": form})
-
-    def post(self, request, pk):
-        gametype = get_object_or_404(GameType, pk=pk)
-        form = GameTypeForm(request.POST, instance=gametype)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Game type was successfully updated.")
-            return redirect("gametype_list")
-        messages.error(
-            request,
-            "There was an error updating the game type. Please ensure all fields are filled out correctly.",
-        )
-        return render(request, self.template_name, {"form": form})
-
-
-class GameTypeDeleteView(LoginRequiredMixin, View):
-    def get(self, request, pk):
-        gametype = get_object_or_404(GameType, pk=pk)
-        gametype.delete()
-        messages.success(request, "Game type was successfully deleted.")
-        return redirect("gametype_list")
-
-    def post(self, request, pk):
-        gametype = get_object_or_404(GameType, pk=pk)
-        gametype.delete()
-        messages.success(request, "Game type was successfully deleted.")
-        return redirect("gametype_list")
-
-
-class GameTypeListView(LoginRequiredMixin, View):
-    template_name = "Admin/General_Settings/GameType.html"
-
-    def get(self, request):
-        gametypes = GameType.objects.all()
-        return render(
-            request,
-            self.template_name,
-            {
-                "gametypes": gametypes,
-                "breadcrumb": {"parent": "General Settings", "child": "Game Type"},
-            },
-        )
-
+#     def get(self, request):
+#         genders = UserGender.objects.all()
+#         return render(
+#             request,
+#             self.template_name,
+#             {
+#                 "genders": genders,
+#                 "breadcrumb": {"parent": "General Settings", "child": "Gender"},
+#             },
+#         )
 
 # fieldcapacity CRUD Views
 class FieldCapacityCreateView(LoginRequiredMixin, View):
@@ -820,7 +735,7 @@ class FieldCapacityCreateView(LoginRequiredMixin, View):
         form = FieldCapacityForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, "Field Capacity created successfully.")
+            messages.success(request, "Field Capacity Created successfully.")
             return redirect("fieldcapacity_list")
         messages.error(
             request,
@@ -842,7 +757,7 @@ class FieldCapacityUpdateView(LoginRequiredMixin, View):
         form = FieldCapacityForm(request.POST, instance=fieldcapacity)
         if form.is_valid():
             form.save()
-            messages.success(request, "Field Capacity updated successfully.")
+            messages.success(request, "Field Capacity Updated Successfully.")
             return redirect("fieldcapacity_list")
         messages.error(
             request,
@@ -855,13 +770,13 @@ class FieldCapacityDeleteView(LoginRequiredMixin, View):
     def get(self, request, pk):
         fieldcapacity = get_object_or_404(FieldCapacity, pk=pk)
         fieldcapacity.delete()
-        messages.success(request, "Field Capacity successfully deleted.")
+        messages.success(request, "Field Capacity Successfully Deleted.")
         return redirect("fieldcapacity_list")
 
     def post(self, request, pk):
         fieldcapacity = get_object_or_404(FieldCapacity, pk=pk)
         fieldcapacity.delete()
-        messages.success(request, "Field Capacity successfully deleted.")
+        messages.success(request, "Field Capacity Successfully Deleted.")
         return redirect("fieldcapacity_list")
 
 
@@ -880,7 +795,7 @@ class FieldCapacityListView(LoginRequiredMixin, View):
         )
 
 
-# GroundMaterials CRUD Views
+# Groun dMaterials CRUD Views
 class GroundMaterialCreateView(LoginRequiredMixin, View):
     template_name = "forms/groundmaterial_form.html"
 
@@ -892,11 +807,11 @@ class GroundMaterialCreateView(LoginRequiredMixin, View):
         form = GroundMaterialForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, "Field Capacity created successfully.")
+            messages.success(request, "Ground Material Created Successfully.")
             return redirect("groundmaterial_list")
         messages.error(
             request,
-            "There was an error creating the Field Capacity. Please ensure all fields are filled out correctly.",
+            "There was an error creating the Ground Material. Please ensure all fields are filled out correctly.",
         )
         return render(request, self.template_name, {"form": form})
 
@@ -914,11 +829,11 @@ class GroundMaterialUpdateView(LoginRequiredMixin, View):
         form = GroundMaterialForm(request.POST, instance=groundmaterial)
         if form.is_valid():
             form.save()
-            messages.success(request, "Field Capacity updated successfully.")
+            messages.success(request, "Ground Material Updated Successfully.")
             return redirect("groundmaterial_list")
         messages.error(
             request,
-            "There was an error updating the game type. Please ensure all fields are filled out correctly.",
+            "There was an error updating the Ground Material. Please ensure all fields are filled out correctly.",
         )
         return render(request, self.template_name, {"form": form})
 
@@ -927,13 +842,13 @@ class GroundMaterialDeleteView(LoginRequiredMixin, View):
     def get(self, request, pk):
         groundmaterial = get_object_or_404(GroundMaterial, pk=pk)
         groundmaterial.delete()
-        messages.success(request, "Field Capacity successfully deleted.")
+        messages.success(request, "Ground Material Successfully Deleted.")
         return redirect("groundmaterial_list")
 
     def post(self, request, pk):
         groundmaterial = get_object_or_404(GroundMaterial, pk=pk)
         groundmaterial.delete()
-        messages.success(request, "Field Capacity successfully deleted.")
+        messages.success(request, "Ground Material successfully deleted.")
         return redirect("groundmaterial_list")
 
 
@@ -967,11 +882,11 @@ class TournamentStyleCreateView(LoginRequiredMixin, View):
         form = TournamentStyleForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, "Field Capacity created successfully.")
+            messages.success(request, "Tournament Style created successfully.")
             return redirect("tournamentstyle_list")
         messages.error(
             request,
-            "There was an error creating the Field Capacity. Please ensure all fields are filled out correctly.",
+            "There was an error creating the Tournament Style. Please ensure all fields are filled out correctly.",
         )
         return render(request, self.template_name, {"form": form})
 
@@ -989,11 +904,11 @@ class TournamentStyleUpdateView(LoginRequiredMixin, View):
         form = TournamentStyleForm(request.POST, instance=tournamentstyle)
         if form.is_valid():
             form.save()
-            messages.success(request, "Field Capacity updated successfully.")
+            messages.success(request, "Tournament Style updated successfully.")
             return redirect("tournamentstyle_list")
         messages.error(
             request,
-            "There was an error updating the game type. Please ensure all fields are filled out correctly.",
+            "There was an error updating the Tournament Style. Please ensure all fields are filled out correctly.",
         )
         return render(request, self.template_name, {"form": form})
 
@@ -1002,13 +917,13 @@ class TournamentStyleDeleteView(LoginRequiredMixin, View):
     def get(self, request, pk):
         tournamentstyle = get_object_or_404(TournamentStyle, pk=pk)
         tournamentstyle.delete()
-        messages.success(request, "Field Capacity successfully deleted.")
+        messages.success(request, "Tournament Style successfully deleted.")
         return redirect("tournamentstyle_list")
 
     def post(self, request, pk):
         tournamentstyle = get_object_or_404(TournamentStyle, pk=pk)
         tournamentstyle.delete()
-        messages.success(request, "Field Capacity successfully deleted.")
+        messages.success(request, "Tournament Style successfully deleted.")
         return redirect("tournamentstyle_list")
 
 
@@ -1039,11 +954,11 @@ class EventTypeCreateView(LoginRequiredMixin, View):
         form = EventTypeForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, "Field Capacity created successfully.")
+            messages.success(request, "Event Type created successfully.")
             return redirect("eventtype_list")
         messages.error(
             request,
-            "There was an error creating the Field Capacity. Please ensure all fields are filled out correctly.",
+            "There was an error creating the Event Type. Please ensure all fields are filled out correctly.",
         )
         return render(request, self.template_name, {"form": form})
 
@@ -1061,11 +976,11 @@ class EventTypeUpdateView(LoginRequiredMixin, View):
         form = EventTypeForm(request.POST, instance=eventtype)
         if form.is_valid():
             form.save()
-            messages.success(request, "Field Capacity updated successfully.")
+            messages.success(request, "Event Type Capacity updated successfully.")
             return redirect("eventtype_list")
         messages.error(
             request,
-            "There was an error updating the game type. Please ensure all fields are filled out correctly.",
+            "There was an error updating the Event type. Please ensure all fields are filled out correctly.",
         )
         return render(request, self.template_name, {"form": form})
 
@@ -1074,13 +989,13 @@ class EventTypeDeleteView(LoginRequiredMixin, View):
     def get(self, request, pk):
         eventtype = get_object_or_404(EventType, pk=pk)
         eventtype.delete()
-        messages.success(request, "Field Capacity successfully deleted.")
+        messages.success(request, "Event Type successfully deleted.")
         return redirect("eventtype_list")
 
     def post(self, request, pk):
         eventtype = get_object_or_404(EventType, pk=pk)
         eventtype.delete()
-        messages.success(request, "Field Capacity successfully deleted.")
+        messages.success(request, "Event Type successfully deleted.")
         return redirect("eventtype_list")
 
 
@@ -1097,3 +1012,85 @@ class EventTypeListView(LoginRequiredMixin, View):
                 "breadcrumb": {"parent": "General Settings", "child": "Event Types"},
             },
         )
+#om code
+def UserDetailPage(request,id):
+    with open("user_id.txt","w") as f:
+        f.write(str(id))
+   
+    try:
+        user  = User.objects.get(id = id)
+        update = user.player_profile.bio
+        
+        try:
+            
+            with open("user.txt","w") as f:
+                f.write(str(user.username))
+        except Exception as e:
+            with open("user.txt","w") as f:
+                f.write(str(e))
+                    
+                
+        context = {
+            'user':user
+            
+        }
+        
+        return render(request,"Admin/User_detail.html",context)    
+
+        
+    except Exception as e:
+        
+        with open("user.txt","w") as f:
+                f.write(str(e))         
+        
+    return render(request,"Admin/User_detail.html")    
+
+def UserEditPage(request,id):
+    
+    try:
+        user_detail = User.objects.get(id=id)
+
+        context = {
+            
+            'user_detail':user_detail,
+            
+        }
+        
+        return render(request,"Admin/user_edit.html",context)
+
+        
+    except Exception as e:
+        with open("user.txt","w") as f:
+            f.write(str(e))
+                    
+    
+    
+    return render(request,"Admin/user_edit.html")
+
+def save_player_detail(request):
+
+    try:
+        if request.method == 'POST':
+                username = request.POST.get('username')
+                email = request.POST.get('email')
+
+                with open("user.txt","w") as f:
+                    f.write(str(username))
+                    
+                response_data = {
+                    'message': f"Received data: Username - {username}, Email - {email}"
+                }
+                
+
+                return JsonResponse(response_data)
+        else:
+                return JsonResponse({'error': 'Invalid request'}, status=400)
+            
+    except Exception as e:
+        with open("user.txt","w") as f:
+            f.write(e)
+
+            
+            
+            
+    

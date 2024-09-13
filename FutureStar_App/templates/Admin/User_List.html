@@ -6,80 +6,196 @@
 <!-- Plugins css start-->
 <link rel="stylesheet" type="text/css" href="{% sass_src 'assets/scss/vendors/datatables.scss' %}">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+    .modal-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.modal-body .form-group {
+    flex: 1;
+    min-width: 200px; /* Adjust as necessary */
+}
+
+.modal-body .form-group label {
+    display: block;
+    font-weight: bold;
+}
+
+.modal-body .form-group input,
+.modal-body .form-group select {
+    width: 100%;
+}
+/* Modal background */
+/* Modal background */
+.modal-del {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Darken the background */
+    backdrop-filter: blur(5px); /* Apply blur effect to the background */
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    z-index: 999; /* Make sure it stays on top */
+    visibility: hidden; /* Initially hidden */
+    opacity: 0;
+    transition: visibility 0s, opacity 0.3s ease;
+    overflow: hidden; /* Prevent scrolling */
+}
+
+/* Show the modal */
+.modal-del.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Modal content */
+.modal-content-del {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    max-width: 100%;
+    z-index: 1000;
+    overflow: hidden; 
+
+}
+
+/* Modal header */
+.modal-header-del {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Close button */
+.close-btn {
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* Modal footer (buttons) */
+.modal-footer-del {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Cancel and delete buttons */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.cancel-btn {
+    background-color: #ccc;
+}
+
+.delete-btn {
+    background-color: red;
+    color: white;
+}
+
+
+
+
+</style>
 <!-- Plugins css Ends--> 
 {% endblock %}
-{% block title %}User List{% endblock %}
+{% block title %}Player List{% endblock %}
+
+{% block javascript %}
+    <script>
+        function userdetialpage(){
+            alert("hello")
+            return false
+        }
+    </script>
+{% endblock %}
 
 {% block content %}
 <div class="page-body">
    <div class="container-fluid">
-    {% include "layouts/breadcrumb.html" %}
-      <div class="row">
-         <div class="col-sm-12">
-            <div class="card">
-               <div class="card-body">
-                  <div class="table-responsive">
-                     <table class="display" id="basic-1">
-                        <thead>
-                           <tr>
-                              <th>Username</th>
-                              <th>First Name</th>
-                              <th>Last Name</th>
-                              <th>Email</th>
-                              <th>Phone</th>
-                              <th>Status</th>
-                              <th>Role</th>
-                              <th>Actions</th>
-                           </tr>
-                        </thead>
-                        <tbody> 
-                           {% for user in users %}
-                           <tr>
-                              <td>{{ user.username }}</td>
-                              <td>{{ user.first_name }}</td>
-                              <td>{{ user.last_name }}</td>
-                              <td>{{ user.email }}</td>
-                              <td>{{ user.phone }}</td>
-                              <td>
-                                 {% if user.is_active %}
-                                    <button class="btn btn-success toggle-status" 
-                                            data-user-id="{{ user.id }}" 
-                                            data-status="deactivate">Active</button>
-                                 {% else %}
-                                    <button class="btn btn-danger toggle-status" 
-                                            data-user-id="{{ user.id }}" 
-                                            data-status="activate">Deactive</button>
-                                 {% endif %}
-                              </td>
-                              {% if user.role %}
-                              <td>{{ user.role.name }}</td>
-                              {% else %}
-                              <td>No Role Assigned</td>
-                              {% endif %}
-                              <td>
-                                 <ul class="action">
-                                    <li class="edit">
-                                       <a href="#" data-id="{{ user.id }}" class="edit-btn">
-                                          <i class="icon-pencil-alt"></i>
-                                       </a>
-                                    </li>
-                                    <li class="delete">
-                                       <a href="#" data-id="{{ user.id }}" class="delete-btn">
-                                          <i class="icon-trash"></i>
-                                       </a>
-                                    </li>
-                                 </ul>
-                              </td>
-                           </tr>
-                           {% endfor %}
-                        </tbody>
-                     </table>
-                  </div>
-               </div>
+    <div class="page-title">
+        <div class="row">
+            <div class="col-6">
+            <h3>{{breadcrumb.child}}</h3>
             </div>
-         </div>
-      </div>
-   </div>
+            <div class="col-6">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-sm-12">
+           <div class="card">
+              <div class="card-body">
+                 <div class="table-responsive">
+                    <table class="display" id="basic-1">
+                       <thead>
+                          <tr>
+                             <th>Username</th>
+                             <th>First Name</th>
+                             <th>Last Name</th>
+                             <th>Email</th>
+                             <th>Phone</th>
+                             <th>Status</th>
+                             <th>Role</th>
+                             <th>View</th>
+                             <th>Actions</th>
+                          </tr>
+                       </thead>
+                       <tbody> {% for user in users %} <tr>
+                             <td>{{ user.username }}</td>
+                             <td>{{ user.first_name }}</td>
+                             <td>{{ user.last_name }}</td>
+                             <td>{{ user.email }}</td>
+                             <td>{{ user.phone }}</td>
+                             <td> {% if user.is_active %} <button class="btn btn-success toggle-status" data-user-id="{{ user.id }}" data-status="deactivate">Active</button> {% else %} <button class="btn btn-danger toggle-status" data-user-id="{{ user.id }}" data-status="activate">Deactive</button> {% endif %} </td> {% if user.role %} <td>{{ user.role.name }}</td> {% else %} <td>No Role Assigned</td> {% endif %}
+                             <td>
+                                <button onclick = "return userdetialpage('{{user.id}}')" class="btn btn-link" style="border: none; background: none; cursor: pointer;">
+                                    <i class="fas fa-eye" style="font-size: 24px; color: #007bff;"></i>
+                                </button>
+                              </td>
+                             <td> 
+                               
+                                <div class="action-menu-container" style="position: relative; display: inline-block;">
+                                   <a href="#" class="three-dots-menu" onclick="toggleMenu(this)">
+                                      <i data-feather="more-vertical"></i>
+                                      <!-- Three dots icon -->
+                                   </a>
+                                   <!-- Hidden card for actions -->
+                                   <div class="action-card" style="display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); z-index: 10; width: 150px;">
+                                      <ul style="list-style: none; padding: 0; margin: 0;">
+                                         
+                                         <li style="padding: 8px 12px; border-top: 1px solid #eee;">
+                                            <a class="delete" href="#" data-bs-toggle="modal"  data-bs-target="#deleteUserModal"  data-id="{{ user.id }}">
+                                               <i data-feather="trash-2"></i > Delete </a>
+                                         </li>
+                                      </ul>
+                                   </div>
+                                </div>
+                             </td>
+                          </tr> {% endfor %} </tbody>
+                    </table>
+                 </div>
+              </div>
+           </div>
+        </div>
+     </div>
+  </div>
 </div>
 
 <!-- Edit User Modal -->
@@ -87,34 +203,34 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                <h5 class="modal-title" id="editUserModalLabel">Edit Player</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="editUserForm" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="user_id" id="user_id">
-                    <div class="mb-3">
+                    <div class="form-group">
                         <label class="form-label" for="first_name">First Name</label>
                         <input class="form-control" id="first_name" name="first_name" type="text">
                         <div class="text-danger" id="first_name_error"></div>
                     </div>
-                    <div class="mb-3">
+                    <div class="form-group">
                         <label class="form-label" for="last_name">Last Name</label>
                         <input class="form-control" id="last_name" name="last_name" type="text">
                         <div class="text-danger" id="last_name_error"></div>
                     </div>
-                    <div class="mb-3">
+                    <div class="form-group">
                         <label class="form-label" for="email">Email</label>
                         <input class="form-control" id="email" name="email" type="email">
                         <div class="text-danger" id="email_error"></div>
                     </div>
-                    <div class="mb-3">
+                    <div class="form-group">
                         <label class="form-label" for="phone">Phone</label>
                         <input class="form-control" id="phone" name="phone" type="text">
                         <div class="text-danger" id="phone_error"></div>
                     </div>
-                    <div class="mb-3">
+                    <div class="form-group">
                         <label class="form-label" for="role">Role</label>
                         <select class="form-control" id="role" name="role">
                             {% for role in roles %}
@@ -133,12 +249,13 @@
     </div>
 </div>
 
+
 <!-- Delete User Modal -->
 <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteUserModalLabel">Delete User</h5>
+                <h5 class="modal-title" id="deleteUserModalLabel">Delete Player</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -146,12 +263,35 @@
                     {% csrf_token %}
                     <input type="hidden" id="deleteUserId" name="id">
                     <p>Are you sure you want to delete this user?</p>
-                    <button type="submit" class="btn btn-danger">Delete User</button>
+                    <button type="submit" onclick ="return deleteuser()" class="btn btn-danger">Delete User</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+
+<!--<div  id="deleteUserModal-del" class="modal-del"></div>
+    <div  id="model-content-del-id" class="modal-content-del">
+        <div class="modal-header-del">
+            <h5>Delete User Confirmation</h5>
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+        </div>
+        <div class="modal-body-del">
+            <p>Are you sure you want to delete this user? This action cannot be undone.</p>
+            <form method="post" id="deleteUserForm">
+                <input type="hidden" id="deleteUserId" name="id">
+                <div class="modal-footer-del">
+                    <button type="button" class="btn cancel-btn" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn delete-btn" onclick="return deleteUser('{{user.id}}')">Delete User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>-->
+
+
+
 {% endblock %}
 
 {% block scriptcontent %}
@@ -230,7 +370,9 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.delete-btn').forEach(function (button) {
         button.addEventListener('click', function (e) {
             e.preventDefault();
+            
             var userId = this.getAttribute('data-id');
+            
             document.getElementById('deleteUserId').value = userId;
             $('#deleteUserModal').modal('show');
         });
@@ -245,7 +387,7 @@ document.addEventListener('DOMContentLoaded', function () {
             body: formData
         })
         .then(response => {
-            location.reload();  // Reload the page after deletion
+            location.reload();  
         });
     });
 
@@ -276,6 +418,131 @@ document.addEventListener('DOMContentLoaded', function () {
             form.submit();
         });
     });
+    document.querySelectorAll('.toggle-status').forEach(function(button) {
+         button.addEventListener('click', function() {
+            var userId = button.getAttribute('data-user-id');
+            var status = button.getAttribute('data-status');
+            var url = "{% url 'user_toggle_status' pk='0' %}".replace('0', userId);
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = url;
+            var csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = 'csrfmiddlewaretoken';
+            csrfToken.value = '{{ csrf_token }}';
+            form.appendChild(csrfToken);
+            var statusInput = document.createElement('input');
+            statusInput.type = 'hidden';
+            statusInput.name = 'status';
+            statusInput.value = status;
+            form.appendChild(statusInput);
+            document.body.appendChild(form);
+            form.submit();
+         });
+      });
 });
+
+    function userdetialpage(id){
+
+        
+
+        
+        url = "{% url 'user_detail' 'id' %}".replace('id',id)
+        window.location.href = url
+        
+        return false
+    }
+
+    function editplayerdetail(id){
+
+        try{
+            url = "{% url 'user_edit' 'id' %}".replace('id',id)
+
+            window.location.href = url
+            return false
+        }
+        catch(error){
+            alert(error)
+        }
+        
+    }
+
+ 
+   
+
+    // Function to delete user (replace with actual functionality)
+   
+    /*function deleteuser() {
+    try {
+        // Get all delete buttons
+        var deleteButtons = document.querySelectorAll('.delete');
+        // Loop through each button and add an event listener
+        deleteButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                // Prevent default behavior (e.g., navigation)
+                event.preventDefault();
+
+                // Get the user ID from the clicked button
+                var userId = button.getAttribute('data-id');
+
+                // Set the value of the hidden input in the modal
+                document.getElementById('deleteUserId').value = userId;
+
+                // Log the user ID to the console
+                console.log('Delg user with ID: ' + userId);
+            });
+        });
+
+        return false;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+}*/
+document.addEventListener('click', function(event) {
+    // Check if the clicked element has the 'delete' class
+    if (event.target.classList.contains('delete')) {
+        // Get the user ID from the clicked delete button
+        var userId = event.target.getAttribute('data-id');
+
+        // Set the value of the hidden input in the modal
+        document.getElementById('deleteUserId').value = userId;
+
+        // Log the user ID to the console
+        console.log('Deleting user with ID: ' + userId);
+    }
+});
+
+    
+</script>
+
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+      // Toggle the visibility of the action card
+      document.querySelectorAll('.three-dots-menu').forEach(function(menu) {
+         menu.addEventListener('click', function(event) {
+            event.preventDefault();
+            var actionCard = menu.nextElementSibling;
+            actionCard.style.display = (actionCard.style.display === 'none' || actionCard.style.display === '') ? 'block' : 'none';
+            // Close other open action cards
+            document.querySelectorAll('.action-card').forEach(function(card) {
+               if (card !== actionCard) {
+                  card.style.display = 'none';
+               }
+            });
+         });
+      });
+      // Hide action card if clicking outside
+      document.addEventListener('click', function(event) {
+        
+         var isClickInside = event.target.closest('.action-menu-container');
+         if (!isClickInside) {
+            document.querySelectorAll('.action-card').forEach(function(card) {
+               card.style.display = 'none';
+            });
+         }
+      });
+   });
+</script>
 </script>
 {% endblock %}

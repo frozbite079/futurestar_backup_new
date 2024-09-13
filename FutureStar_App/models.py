@@ -5,6 +5,8 @@ from django.contrib.auth.models import (
 )
 from django.db import models
 
+from django.contrib.auth.hashers import make_password, check_password
+
 # Role Model
 class Role(models.Model):
     name = models.CharField(max_length=100)
@@ -44,8 +46,13 @@ class UserManager(BaseUserManager):
 
 # Custom User Model
 class User(AbstractBaseUser, PermissionsMixin):
-    first_name = models.CharField(max_length=150)
-    last_name = models.CharField(max_length=150)
+
+    first_name = models.CharField(max_length=150,blank=True,null=True)
+
+    last_name = models.CharField(max_length=150,null=True,blank=True)
+    
+    fullname = models.CharField(max_length=255, blank=True, null=True)
+
     username = models.CharField(max_length=150, unique=True)
     profile_picture = models.ImageField(
         upload_to="profile_pics/", null=True, blank=True
@@ -97,12 +104,12 @@ class UserGender(models.Model):
         return self.name
 
 
-# Game Type  Model
-class GameType(models.Model):
-    name = models.CharField(max_length=100)
+# # Game Type  Model
+# class GameType(models.Model):
+#     name = models.CharField(max_length=100)
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
 
 # Field Capacity  Model
@@ -135,3 +142,137 @@ class EventType(models.Model):
 
     def __str__(self):
         return self.name
+
+
+#User Profile
+class Player_Profile(models.Model):
+    
+    user_id = models.OneToOneField(User, on_delete=models.CASCADE ,blank=True, null=True,related_name='player_profile')
+    
+    #fullname = models.CharField(max_length=255, blank=True, null=True)
+    
+    #username = models.CharField(max_length=150, unique=True,default='')
+        
+    #password = models.CharField(max_length=128,default='')  
+    
+    #date_joined = models.DateTimeField(auto_now_add=True)
+    
+    #is_active = models.BooleanField(default=True)
+    
+    #username = models.CharField(max_length=255,null = False)
+    
+    #Phone_Number = models.PositiveIntegerField(null=False,default='')
+    
+    bio = models.TextField(blank=True, null=True)
+
+    date_of_birth = models.DateField(blank=True, null=True)
+
+    age = models.PositiveIntegerField(blank=True, null=True)
+
+    #gender = models.CharField(max_length=10, blank=True, null=True)
+    gender = models.ForeignKey(UserGender, on_delete=models.CASCADE ,blank=True, null=True)
+    
+    country = models.CharField(max_length=100, blank=True, null=True)
+
+    city = models.CharField(max_length=100, blank=True, null=True)
+
+    nationality = models.CharField(max_length=100, blank=True, null=True)
+
+    weight = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+
+    height = models.PositiveIntegerField(blank=True, null=True)
+
+    main_playing_position = models.CharField(max_length=50, blank=True, null=True)
+
+    secondary_playing_position = models.CharField(max_length=50, blank=True, null=True)
+
+    playing_foot = models.CharField(max_length=10, blank=True, null=True)
+
+    favourite_local_team = models.CharField(max_length=100, blank=True, null=True)
+
+    favourite_team = models.CharField(max_length=100, blank=True, null=True)
+
+    favourite_local_player = models.CharField(max_length=100, blank=True, null=True)
+
+    favourite_player = models.CharField(max_length=100, blank=True, null=True)
+    #data
+    def set_password(self, raw_password):
+         self.password = make_password(raw_password)
+         self.save()
+
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.password)
+    
+    def __str__(self):
+        return self.fullname if self.fullname else 'Player Profile'
+        
+        
+
+# class UserPost(models.Model):
+    
+#     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+#     title = models.CharField(max_length=255)  
+#     description = models.TextField() 
+#     photo = models.CharField(upload_to='profile_pics/',null=True, blank=True)  
+        
+#     class Meta:
+#         db_table = "FutureStar_App_UserPost"
+
+# class Sponsor(models.Model):
+#     sponsor_name = models.CharField(max_length=255)  
+#     sponsor_logo = models.ImageField(upload_to='sponsor_logos/')  
+#     phone_number = models.CharField(max_length=20, blank=True, null=True)  
+#     email_address = models.EmailField(blank=True, null=True)  
+
+#     def __str__(self):
+#         return self.sponsor_name
+
+# class EditStuff(models.Model):
+    
+#     role = models.CharField(max_length=20)  
+#     name = models.CharField(max_length=255)  
+#     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)  
+#     phone_number = models.CharField(max_length=20, blank=True, null=True) 
+#     email_address = models.EmailField(blank=True, null=True)  
+#     country = models.CharField(max_length=100)  
+#     city = models.CharField(max_length=100)  
+
+#     def __str__(self):
+#         return self.name
+
+# class PlayerBranch(models.Model):
+#     name = models.CharField(max_length=255)
+    
+#     position = models.CharField(max_length=100)
+    
+#     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+
+#     phone_number = models.CharField(max_length=20, blank=True, null=True)
+    
+#     email_address = models.EmailField(blank=True, null=True)
+    
+#     country = models.CharField(max_length=100)
+    
+#     city = models.CharField(max_length=100)
+    
+#     weight = models.FloatField()
+    
+#     height = models.FloatField()
+    
+#     age = models.PositiveIntegerField()
+    
+#     date_of_birth = models.DateField()
+    
+#     def __str__(self):
+#         return self.name    
+
+# class FriendlyGame(models.Model):
+    # game_number = models.PositiveIntegerField(unique=True)
+    # start_date = models.DateField()
+    # start_time = models.TimeField()
+    # team_A = models.CharField(max_length=255)
+    # team_B = models.CharField(max_length=255)
+    # game_field = models.CharField(max_length=255)
+    # referee_name = models.CharField(max_length=255)
+    # def __str__(self):
+    #     return f"Game {self.game_number}: {self.team_A} vs {self.team_B} on {self.start_date}"    

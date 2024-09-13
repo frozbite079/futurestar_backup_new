@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load sass_tags %}
+
+{% block css %}
+<!-- Additional CSS -->
+<link rel="stylesheet" type="text/css" href="{% sass_src 'assets/scss/vendors/datatables.scss' %}">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<style>
+    .user-details {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    .user-details .detail {
+        flex: 1;
+        min-width: 200px;
+        margin-right: 20px;
+        margin-bottom: 20px;
+    }
+
+    .user-details .detail label {
+        font-weight: bold;
+    }
+
+    .user-details .detail p,
+    .user-details .detail input {
+        margin: 0;
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .user-details .detail input {
+        font-size: 16px;
+    }
+
+    .btn-save,
+    .btn-back {
+        background-color: #6f42c1;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-save:hover,
+    .btn-back:hover {
+        background-color: #5a2d91;
+    }
+
+    .btn-save {
+        margin-right: 10px;
+    }
+
+    .content-box {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .container {
+        margin-top: 40px; /* Adjust this value as needed */
+    }
+    #warning{
+        display: none;
+    }
+
+    #warning-fill{
+        color:red;
+    }
+
+</style>
+{% endblock %}
+<br>
+{% block title %}Edit User Details{% endblock %}
+
+{% block content %}
+<div class="page-body">
+    <div class="container">
+        <div class="content-box">
+            <h1>Edit User Details</h1>
+            <form method="post" action="">
+                {% csrf_token %}
+                <div class="user-details">
+                    
+                    <div class="detail">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" value="{{ user_detail.username }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="fullname">Full Name:</label>
+                        <input type="text" id="fullname" name="fullname" value="{{ user_detail.fullname }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="bio">Bio:</label>
+                        <input type="text" id="bio" name="bio" value="{{ user_detail.player_profile.bio }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" value="{{ user_detail.email }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="date_of_birth">Date Of Birth:</label>
+                        <input type="date" id="date_of_birth" name="date_of_birth" value="{{ user_detail.player_profile.date_of_birth }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="age">Age:</label>
+                        <input type="number" id="age" name="age" value="{{ user_detail.player_profile.age }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="gender">Gender:</label>
+                        <input type="text" id="gender" name="gender" value="{{ user_detail.player_profile.gender }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="phone">Phone Number:</label>
+                        <input type="text" id="phone" name="phone" value="{{ user_detail.phone }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="country">Country:</label>
+                        <input type="text" id="country" name="country" value="{{ user_detail.player_profile.country }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="city">City:</label>
+                        <input type="text" id="city" name="city" value="{{ user_detail.player_profile.city }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="nationality">Nationality:</label>
+                        <input type="text" id="nationality" name="nationality" value="{{ user_detail.player_profile.nationality }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="weight">Weight:</label>
+                        <input type="text" id="weight" name="weight" value="{{ user_detail.player_profile.weight }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="height">Height:</label>
+                        <input type="text" id="height" name="height" value="{{ user_detail.player_profile.height }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="main_playing_position">Main Playing Position:</label>
+                        <input type="text" id="main_playing_position" name="main_playing_position" value="{{ user_detail.player_profile.main_playing_position }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="secondary_playing_position">Secondary Playing Position:</label>
+                        <input type="text" id="secondary_playing_position" name="secondary_playing_position" value="{{ user_detail.player_profile.secondary_playing_position }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="playing_foot">Playing Foot:</label>
+                        <input type="text" id="playing_foot" name="playing_foot" value="{{ user_detail.player_profile.playing_foot }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="favourite_local_team">Favourite Local Team:</label>
+                        <input type="text" id="favourite_local_team" name="favourite_local_team" value="{{ user_detail.player_profile.favourite_local_team }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="favourite_team">Favourite Team:</label>
+                        <input type="text" id="favourite_team" name="favourite_team" value="{{ user_detail.player_profile.favourite_team }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="favourite_local_player">Favourite Local Player:</label>
+                        <input type="text" id="favourite_local_player" name="favourite_local_player" value="{{ user_detail.player_profile.favourite_local_player }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="role">Role:</label>
+                        <input type="text" id="role" name="role" value="{{ user_detail.role }}" required>
+                    </div>
+                    <div class="detail">
+                        <label for="status">Status:</label>
+                        <input type="text" id="status" name="status" value="{{ user_detail.is_active|yesno:"Active,Inactive" }}" required>
+                    </div>
+                    <!-- Add more fields as needed -->
+                </div>
+                <button type="submit" class="btn-save" onclick ="return savedata()">Save Changes</button>
+                <a href="{% url 'user_list' %}" class="btn-back">Back to List</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scriptcontent %}
+
+    <script>
+        function savedata() {
+            //warning_div = document.getElementById('warning')
+            //warning_paragraph = getElementById('warning-fill')   
+            try{
+                $.ajax({
+                    url: '{% url "Usernewdataedit" %}',  
+                    type: 'POST',
+                    data: {
+                        'username': $('#username').val(),
+                        'email': $('#email').val(),
+                        'csrfmiddlewaretoken': '{{ csrf_token }}' 
+                    },
+                    success: function(response) {
+                        console.log("success")
+                    },
+                    error: function(xhr, errmsg, err) {
+                        consoel.log(err)
+                    }
+                });
+
+            }
+            catch(error){
+                console.log(error)
+            }
+            
+        
+
+            return false;
+        }
+    </script>
+{% endblock %}
+
