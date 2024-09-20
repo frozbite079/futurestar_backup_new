@@ -1,0 +1,377 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% load static %}
+{% load sass_tags %}
+
+{% block css %}
+<!-- Plugins css start-->
+<link rel="stylesheet" type="text/css" href="{% sass_src 'assets/scss/vendors/datatables.scss' %}">
+<!-- Plugins css Ends-->
+{% endblock %}
+<style>
+   .is-invalid {
+   border-color: #dc3545;
+   background-color: #f8d7da;
+}
+</style>
+
+{% block title %}
+Team Members List
+{% endblock %}
+
+{% block content %}
+<div class="page-body">
+   <div class="container-fluid">
+      <div class="page-title">
+         <div class="row">
+            <div class="col-6">
+               <h3>{{breadcrumb.child}}</h3>
+            </div>
+            <div class="col-6">
+               <ol class="breadcrumb">
+                  <button class="btn btn-pill btn-outline-primary-2x ml-auto" data-bs-toggle="modal" data-bs-target="#addTeam_MembersModal">Add Team Member</button>
+               </ol>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <!-- Team_Members List -->
+         <div class="col-sm-12">
+            <div class="card">
+               <div class="card-body">
+                  <div class="table-responsive">
+                     <table class="display" id="basic-1">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Image</th> <!-- New column for the image -->
+                                <th>Name ( English)</th>
+                                <th>Name ( Arabic )</th>
+                                <th>Designations ( English)</th>
+                                <th>Designations ( Arabic )</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for team_members_item in team_members %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    {% if team_members_item.image %}
+                                        <img src="{{ team_members_item.image.url }}" alt="{{ team_members_item.name_en }}" width="100" height="auto">
+                                    {% else %}
+                                        No Image
+                                    {% endif %}
+                                </td>
+                                <td>{{ team_members_item.name_en }}</td>
+                                <td>{{ team_members_item.name_ar }}</td>
+                                <td>{{ team_members_item.designations_en }}</td>
+                                <td>{{ team_members_item.designations_ar }}</td>
+                                <td>
+                                    <!-- Action buttons -->
+                                    <div class="action-menu-container" style="position: relative; display: inline-block;">
+                                        <a href="#" class="three-dots-menu" onclick="toggleMenu(this)">
+                                            <i data-feather="more-vertical"></i>
+                                        </a>
+                                        <div class="action-card" style="display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); z-index: 10; width: 150px;">
+                                          <ul style="list-style: none; padding: 0; margin: 0;">
+                                             <li style="padding: 8px 12px;">
+                                                <a style="font-size: large;" href="#" data-bs-toggle="modal" data-bs-target="#editTeam_MembersModal"  data-team_members-id="{{ team_members_item.id }}" 
+                                                data-team_members-name-en="{{ team_members_item.name_en }}" 
+                                                data-team_members-name-ar="{{ team_members_item.name_ar }}" 
+                                                data-team_members-designations-en="{{ team_members_item.designations_en }}" 
+                                                data-team_members-designations-ar="{{ team_members_item.designations_ar }}" 
+                                                data-team_members-image="{{ team_members_item.image.url }}">
+                                                   <i data-feather="edit"></i> Edit </a>
+                                             </li>
+                                             <li style="padding: 8px 12px; border-top: 1px solid #eee;">
+                                                <a style="font-size: large;" href="#" data-bs-toggle="modal" data-bs-target="#deleteTeam_MembersModal" data-team_members-id="{{ team_members_item.id }}">
+                                                   <i data-feather="trash-2"></i> Delete </a>
+                                             </li>
+                                          </ul>
+                                       </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>                        
+                     </table>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+<!-- Add Team_Members Modal -->
+<div class="modal fade" id="addTeam_MembersModal" tabindex="-1" aria-labelledby="addTeam_MembersModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h5 class="modal-title" id="addTeam_MembersModalLabel">Add Team Member</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+         </div>
+         <div class="modal-body">
+            <form method="post" action="{% url 'team_members_create' %}" id="addTeam_MembersForm" enctype="multipart/form-data">
+               {% csrf_token %}
+               <div class="mb-3">
+                  <label for="name_en" class="form-label">Enter Team Member Name ( English)</label>
+                  <input type="text" class="form-control" id="name_en" name="name_en" placeholder="Enter Team Member Name ( English)">
+                  <div class="invalid-feedback" id="name_en-error"></div>
+               </div>
+               <div class="mb-3">
+                  <label for="name_ar" class="form-label">Enter Team Member Name ( Arabic )</label>
+                  <input type="text" class="form-control" id="name_ar" name="name_ar" placeholder="Enter Team Member Name ( Arabic )">
+                  <div class="invalid-feedback" id="name_ar-error"></div>
+               </div>
+               <div class="mb-3">
+                  <label for="designations_en" class="form-label">Designations ( English)</label>
+                  <input type="text" class="form-control" id="designations_en" name="designations_en" placeholder="Enter Team Member Designations ( English)">
+                  <div class="invalid-feedback" id="designations_en-error"></div>
+               </div>
+               <div class="mb-3">
+                  <label for="designations_ar" class="form-label">Designations ( Arabic )</label>
+                  <input type="text" class="form-control" id="designations_ar" name="designations_ar" placeholder="Enter Team Member Designations ( Arabic )">
+                  <div class="invalid-feedback" id="designations_ar-error"></div>
+               </div>
+               <div class="mb-3">
+                    <label for="image" class="form-label">Image</label>
+                    <input type="file" class="form-control" id="image" name="image">
+                    <div class="invalid-feedback" id="image-error"></div>
+               </div>
+               <button type="submit" class="btn btn-primary">Add Team Member</button>
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+
+<!-- Edit Team_Members Modal -->
+<div class="modal fade" id="editTeam_MembersModal" tabindex="-1" aria-labelledby="editTeam_MembersModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h5 class="modal-title" id="editTeam_MembersModalLabel">Edit Team Member</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+         </div>
+         <div class="modal-body">
+            <form method="post" id="editTeam_MembersForm" enctype="multipart/form-data">
+               {% csrf_token %}
+               <input type="hidden" id="editTeam_MembersId" name="id">
+               <div class="mb-3">
+                  <label for="editNameEn" class="form-label">Name ( English)</label>
+                  <input type="text" class="form-control" id="editNameEn" name="name_en" placeholder="Enter Team Member Name ( English)">
+                  <div class="invalid-feedback" id="edit-name-en-error"></div>
+               </div>
+               <div class="mb-3">
+                  <label for="editNameAr" class="form-label">Name ( Arabic )</label>
+                  <input type="text" class="form-control" id="editNameAr" name="name_ar" placeholder="Enter Team Member Name ( Arabic )">
+                  <div class="invalid-feedback" id="edit-name-ar-error"></div>
+               </div>
+               <div class="mb-3">
+                  <label for="editDesignationsEn" class="form-label">Designations ( English)</label>
+                  <input type="text" class="form-control" id="editDesignationsEn" name="designations_en" placeholder="Enter Team Member Designations ( English)">
+                  <div class="invalid-feedback" id="edit-designations-en-error"></div>
+               </div>
+               <div class="mb-3">
+                  <label for="editDesignationsAr" class="form-label">Designations ( Arabic )</label>
+                  <input type="text" class="form-control" id="editDesignationsAr" name="designations_ar" placeholder="Enter Team Member Designations ( Arabic )">
+                  <div class="invalid-feedback" id="edit-designations-ar-error"></div>
+               </div>
+               <div class="mb-3">
+                    <label for="editImage" class="form-label">Image</label>
+                    <input type="file" class="form-control" id="editImage" name="image">
+                    <div class="invalid-feedback" id="edit-image-error"></div>
+               </div>
+               <button type="submit" class="btn btn-primary">Update Team Member</button>
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+
+<!-- Delete Team_Members Modal -->
+<div class="modal fade" id="deleteTeam_MembersModal" tabindex="-1" aria-labelledby="deleteTeam_MembersModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h5 class="modal-title" id="deleteTeam_MembersModalLabel">Delete Team Member</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+         </div>
+         <div class="modal-body">
+            <p>Are you sure you want to delete this team member?</p>
+            <form method="post" id="deleteTeam_MembersForm">
+               {% csrf_token %}
+               <input type="hidden" id="deleteTeam_MembersId" name="id">
+               <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'assets/js/datatable/datatables/jquery.dataTables.min.js'%}"></script>
+<script src="{% static 'assets/js/datatable/datatables/datatable.custom.js'%}"></script>
+<script src="{% static 'assets/js/tooltip-init.js'%}"></script>
+<!-- Plugins JS Ends-->
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+    // Edit Team_Members Modal
+    var editTeam_MembersModal = document.getElementById('editTeam_MembersModal');
+    if (editTeam_MembersModal) {
+        editTeam_MembersModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
+            var team_membersId = button.getAttribute('data-team_members-id');
+            var team_membersNameEn = button.getAttribute('data-team_members-name-en');
+            var team_membersNameAr = button.getAttribute('data-team_members-name-ar');
+            var team_membersDesignationsEn = button.getAttribute('data-team_members-designations-en');
+            var team_membersDesignationsAr = button.getAttribute('data-team_members-designations-ar');
+            var team_membersImageUrl = button.getAttribute('data-team_members-image');
+
+            var form = document.getElementById('editTeam_MembersForm');
+            form.action = "{% url 'team_members_edit' 0 %}".replace('0', team_membersId);
+
+            form.querySelector('#editTeam_MembersId').value = team_membersId;
+            form.querySelector('#editNameEn').value = team_membersNameEn;
+            form.querySelector('#editNameAr').value = team_membersNameAr;
+            form.querySelector('#editDesignationsEn').value = team_membersDesignationsEn;
+            form.querySelector('#editDesignationsAr').value = team_membersDesignationsAr;
+
+            var imagePreview = document.getElementById('editTeam_MembersImagePreview');
+            if (team_membersImageUrl) {
+                imagePreview.src = team_membersImageUrl;
+                imagePreview.style.display = 'block';
+            } else {
+                imagePreview.style.display = 'none';
+            }
+        });
+    }
+
+    // Delete Team_Members Modal
+    var deleteTeam_MembersModal = document.getElementById('deleteTeam_MembersModal');
+    if (deleteTeam_MembersModal) {
+        deleteTeam_MembersModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
+            var team_membersId = button.getAttribute('data-team_members-id');
+            var deleteForm = document.getElementById('deleteTeam_MembersForm');
+            deleteForm.action = "{% url 'team_members_delete' 0 %}".replace('0', team_membersId);
+        });
+    }
+});
+
+
+// Form validation for Add and Edit Team_Members modals
+function validateForm(form) {
+    var nameEn = form.querySelector('input[name="name_en"]');
+    var nameAr = form.querySelector('input[name="name_ar"]');
+    var designationsEn = form.querySelector('input[name="designations_en"]');
+    var designationsAr = form.querySelector('input[name="designations_ar"]');
+    var image = form.querySelector('input[name="image"]');
+    var isValid = true;
+
+    // English Name validation
+    if (nameEn.value.trim() === '') {
+        nameEn.classList.add('is-invalid');
+        var nameErrorId = form.id === 'addTeam_MembersForm' ? 'name-en-error' : 'edit-name-en-error';
+        document.getElementById(nameErrorId).textContent = 'This field is required.';
+        isValid = false;
+    } else {
+        nameEn.classList.remove('is-invalid');
+        var nameErrorId = form.id === 'addTeam_MembersForm' ? 'name-en-error' : 'edit-name-en-error';
+        document.getElementById(nameErrorId).textContent = '';
+    }
+
+    // Arabic Name validation
+    if (nameAr.value.trim() === '') {
+        nameAr.classList.add('is-invalid');
+        var nameErrorId = form.id === 'addTeam_MembersForm' ? 'name-ar-error' : 'edit-name-ar-error';
+        document.getElementById(nameErrorId).textContent = 'This field is required.';
+        isValid = false;
+    } else {
+        nameAr.classList.remove('is-invalid');
+        var nameErrorId = form.id === 'addTeam_MembersForm' ? 'name-ar-error' : 'edit-name-ar-error';
+        document.getElementById(nameErrorId).textContent = '';
+    }
+
+    // English Designations validation
+    if (designationsEn.value.trim() === '') {
+        designationsEn.classList.add('is-invalid');
+        var designationsErrorId = form.id === 'addTeam_MembersForm' ? 'designations-en-error' : 'edit-designations-en-error';
+        document.getElementById(designationsErrorId).textContent = 'This field is required.';
+        isValid = false;
+    } else {
+        designationsEn.classList.remove('is-invalid');
+        var designationsErrorId = form.id === 'addTeam_MembersForm' ? 'designations-en-error' : 'edit-designations-en-error';
+        document.getElementById(designationsErrorId).textContent = '';
+    }
+
+    // Arabic Designations validation
+    if (designationsAr.value.trim() === '') {
+        designationsAr.classList.add('is-invalid');
+        var designationsErrorId = form.id === 'addTeam_MembersForm' ? 'designations-ar-error' : 'edit-designations-ar-error';
+        document.getElementById(designationsErrorId).textContent = 'This field is required.';
+        isValid = false;
+    } else {
+        designationsAr.classList.remove('is-invalid');
+        var designationsErrorId = form.id === 'addTeam_MembersForm' ? 'designations-ar-error' : 'edit-designations-ar-error';
+        document.getElementById(designationsErrorId).textContent = '';
+    }
+
+    // Image validation (only for Add Team_Members)
+    if (form.id === 'addTeam_MembersForm' && image.files.length === 0) {
+        image.classList.add('is-invalid');
+        document.getElementById('image-error').textContent = 'An image is required.';
+        isValid = false;
+    } else {
+        image.classList.remove('is-invalid');
+        document.getElementById('image-error').textContent = '';
+    }
+
+    return isValid;
+}
+
+document.getElementById('addTeam_MembersForm').addEventListener('submit', function(event) {
+    var form = event.target;
+    if (!validateForm(form)) {
+        event.preventDefault(); // Prevent form submission
+    }
+});
+
+document.getElementById('editTeam_MembersForm').addEventListener('submit', function(event) {
+    var form = event.target;
+    if (!validateForm(form)) {
+        event.preventDefault(); // Prevent form submission
+    }
+});
+
+// Toggle the visibility of the action card
+document.querySelectorAll('.three-dots-menu').forEach(function(menu) {
+    menu.addEventListener('click', function(event) {
+        event.preventDefault();
+        var actionCard = menu.nextElementSibling;
+        actionCard.style.display = (actionCard.style.display === 'none' || actionCard.style.display === '') ? 'block' : 'none';
+        // Close other open action cards
+        document.querySelectorAll('.action-card').forEach(function(card) {
+            if (card !== actionCard) {
+                card.style.display = 'none';
+            }
+        });
+    });
+});
+
+// Hide action card if clicking outside
+document.addEventListener('click', function(event) {
+    var isClickInside = event.target.closest('.action-menu-container');
+    if (!isClickInside) {
+        document.querySelectorAll('.action-card').forEach(function(card) {
+            card.style.display = 'none';
+        });
+    }
+});
+</script>
+{% endblock %}
+

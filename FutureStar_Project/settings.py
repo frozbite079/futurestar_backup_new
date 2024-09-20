@@ -151,6 +151,7 @@ EMAIL_HOST_USER = 'futurestar@futurestar.redspark.redspark.a2hosted.com'
 EMAIL_HOST_PASSWORD = 'redspark@1'
 DEFAULT_FROM_EMAIL = 'futurestar@futurestar.redspark.redspark.a2hosted.com' 
 
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 '''
 EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
